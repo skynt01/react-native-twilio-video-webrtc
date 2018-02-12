@@ -138,6 +138,18 @@ RCT_REMAP_METHOD(setLocalVideoEnabled, enabled:(BOOL)enabled setLocalVideoEnable
   resolve(@(enabled));
 }
 
+RCT_REMAP_METHOD(setSpeakerOutputEnabled, enabled:(BOOL)enabled setSpeakerOutputEnabledWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+  TVIAudioController *audioController = [TVIAudioController sharedController];
+
+  if (enabled) {
+      audioController.audioOutput = TVIAudioOutputVideoChatDefault;
+  } else {
+      audioController.audioOutput = TVIAudioOutputVoiceChatDefault;
+  }
+
+  resolve(@(enabled));
+}
 
 RCT_EXPORT_METHOD(flipCamera) {
   if (self.camera.source == TVICameraCaptureSourceFrontCamera) {
