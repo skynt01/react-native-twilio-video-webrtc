@@ -117,6 +117,16 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
     private IntentFilter intentFilter;
     private BecomingNoisyReceiver myNoisyAudioStreamReceiver;
 
+    private static CustomTwilioVideoView instance;
+
+     public static CustomTwilioVideoView getInstance(ThemedReactContext context) {
+        if(instance == null) {
+            instance = new CustomTwilioVideoView(context);
+        }
+
+        return instance;
+    }
+
     public CustomTwilioVideoView(ThemedReactContext context) {
         super(context);
         this.themedReactContext = context;
@@ -302,12 +312,22 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
              */
             audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
             audioManager.setSpeakerphoneOn(!audioManager.isWiredHeadsetOn());
-            getContext().registerReceiver(myNoisyAudioStreamReceiver, intentFilter);
+            try {
+                getContext().registerReceiver(myNoisyAudioStreamReceiver, intentFilter);
+            } 
+            catch(Exception e) {
+                Log.i("CustomTwilioVideoView", "registerReceiver failed");
+            }
         } else {
             audioManager.setMode(previousAudioMode);
             audioManager.abandonAudioFocus(null);
             audioManager.setSpeakerphoneOn(false);
-            getContext().unregisterReceiver(myNoisyAudioStreamReceiver);
+            try {
+                getContext().unregisterReceiver(myNoisyAudioStreamReceiver);
+            } 
+            catch(Exception e) {
+                Log.i("CustomTwilioVideoView", "unregisterReceiver failed");
+            }
         }
     }
 
@@ -380,26 +400,7 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
     }
 
      public void toggleSpeakerOutput(boolean enabled) {
-        if (enabled) {
-            previousAudioMode = audioManager.getMode();
-            // Request audio focus before making any device switch.
-            audioManager.requestAudioFocus(null, AudioManager.STREAM_VOICE_CALL,
-            AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
-            /*
-            * Use MODE_IN_COMMUNICATION as the default audio mode. It is required
-            * to be in this mode when playout and/or recording starts for the best
-            * possible VoIP performance. Some devices have difficulties with
-            * speaker mode if this is not set.
-            */
-            audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
-            audioManager.setSpeakerphoneOn(true);
-            getContext().registerReceiver(myNoisyAudioStreamReceiver, intentFilter);
-        } else {
-            audioManager.setMode(previousAudioMode);
-            audioManager.abandonAudioFocus(null);
-            audioManager.setSpeakerphoneOn(false);
-            getContext().unregisterReceiver(myNoisyAudioStreamReceiver);
-        }
+        audioManager.setSpeakerphoneOn(enabled);
     }
 
     // ====== ROOM LISTENER ========================================================================
