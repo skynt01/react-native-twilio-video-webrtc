@@ -46,7 +46,7 @@ public class CustomTwilioVideoViewManager extends SimpleViewManager<CustomTwilio
 
     @Override
     protected CustomTwilioVideoView createViewInstance(ThemedReactContext reactContext) {
-        return new CustomTwilioVideoView(reactContext);
+        return CustomTwilioVideoView.getInstance(reactContext);
     }
 
     @Override
