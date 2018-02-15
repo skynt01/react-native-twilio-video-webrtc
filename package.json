@@ -1,12 +1,12 @@
 {
-  "name": "react-native-twilio-video-webrtc",
+  "name": "react-native-twilio-video-webrtc-vooban",
   "repository": {
     "type": "git",
-    "url": "https://github.com/blackuy/react-native-twilio-video-webrtc.git"
+    "url": "https://github.com/Vooban/react-native-twilio-video-webrtc"
   },
   "homepage": "https://github.com/blackuy/react-native-twilio-video-webrtc",
-  "version": "1.0.2",
-  "description": "Twilio Video WebRTC for React Native.",
+  "version": "1.0.3",
+  "description": "Twilio Video WebRTC for React Native. - Vooban fork",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
