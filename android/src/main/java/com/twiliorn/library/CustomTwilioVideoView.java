@@ -399,8 +399,39 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
         }
     }
 
-     public void toggleSpeakerOutput(boolean enabled) {
+    public void toggleSpeakerOutput(boolean enabled) {
         audioManager.setSpeakerphoneOn(enabled);
+    }
+
+    public void releaseCamera(){
+        if (localVideoTrack != null) {
+            if (localParticipant != null) {
+                localParticipant.removeVideoTrack(localVideoTrack);
+            }
+
+            localVideoTrack.release();
+            localVideoTrack = null;
+        }
+    }
+
+    public void reconnectCamera(){
+        if (themedReactContext.getCurrentActivity() != null) {
+            if (cameraCapturer != null && localVideoTrack == null) {
+                localVideoTrack = LocalVideoTrack.create(getContext(), true, cameraCapturer);
+            }
+
+            if(localVideoTrack != null) {
+                if (thumbnailVideoView != null) {
+                    localVideoTrack.addRenderer(thumbnailVideoView);
+                }
+
+                if (localParticipant != null) {
+                    localParticipant.addVideoTrack(localVideoTrack);
+                }
+            }
+
+            themedReactContext.getCurrentActivity().setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
+        }
     }
 
     // ====== ROOM LISTENER ========================================================================
