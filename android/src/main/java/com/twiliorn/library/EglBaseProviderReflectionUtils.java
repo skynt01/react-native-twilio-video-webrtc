@@ -15,8 +15,7 @@ public class EglBaseProviderReflectionUtils {
         Object eglBaseProvider = null;
         try {
             Class<?> eglBaseProviderClass = Class.forName("com.twilio.video.EglBaseProvider");
-            Method instanceMethod = eglBaseProviderClass.getDeclaredMethod("instance",
-                    Object.class);
+            Method instanceMethod = eglBaseProviderClass.getDeclaredMethod("instance", Object.class);
             instanceMethod.setAccessible(true);
             eglBaseProvider = instanceMethod.invoke(null, owner);
         } catch (Throwable e) {
@@ -33,8 +32,7 @@ public class EglBaseProviderReflectionUtils {
             Field rootEglBaseField = eglBaseProvider.getClass().getDeclaredField("rootEglBase");
             rootEglBaseField.setAccessible(true);
             Object rootEglBase = rootEglBaseField.get(eglBaseProvider);
-            Method getEglBaseContextMethod = rootEglBase.getClass()
-                    .getDeclaredMethod("getEglBaseContext");
+            Method getEglBaseContextMethod = rootEglBase.getClass().getDeclaredMethod("getEglBaseContext");
             getEglBaseContextMethod.setAccessible(true);
             rootEglBaseContext = (EglBase.Context) getEglBaseContextMethod.invoke(rootEglBase);
         } catch (NoSuchFieldException e) {
@@ -52,8 +50,7 @@ public class EglBaseProviderReflectionUtils {
 
     public static void relaseEglBaseProvider(Object eglBaseProvider, Object owner) {
         try {
-            Method eglBaseProviderReleaseMethod = eglBaseProvider.getClass()
-                    .getDeclaredMethod("release", Object.class);
+            Method eglBaseProviderReleaseMethod = eglBaseProvider.getClass().getDeclaredMethod("release", Object.class);
             eglBaseProviderReleaseMethod.setAccessible(true);
             eglBaseProviderReleaseMethod.invoke(eglBaseProvider, owner);
         } catch (NoSuchMethodException e) {

@@ -48,7 +48,7 @@ public class RNVideoViewGroup extends ViewGroup {
           }
       );
     } catch(NoSuchFieldException e){
-
+      e.printStackTrace();
     }
   }
 
