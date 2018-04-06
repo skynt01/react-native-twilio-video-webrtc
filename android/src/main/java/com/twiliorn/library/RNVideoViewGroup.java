@@ -17,7 +17,7 @@ import com.twilio.video.VideoView;
 import org.webrtc.RendererCommon;
 
 public class RNVideoViewGroup extends ViewGroup {
-  private VideoView surfaceViewRenderer = null;
+  private VideoTextureView surfaceViewRenderer = null;
   private int videoWidth = 0;
   private int videoHeight = 0;
   private final Object layoutSync = new Object();
@@ -27,29 +27,32 @@ public class RNVideoViewGroup extends ViewGroup {
   public RNVideoViewGroup(Context context) {
     super(context);
 
-    surfaceViewRenderer = new VideoView(context);
-    surfaceViewRenderer.setVideoScaleType(VideoScaleType.ASPECT_FILL);
-    addView(surfaceViewRenderer);
-    surfaceViewRenderer.setListener(
-        new VideoRenderer.Listener() {
-          @Override
-          public void onFirstFrame() {
+    try {
+      surfaceViewRenderer = new VideoTextureView(context);
+      addView(surfaceViewRenderer);
+      surfaceViewRenderer.setListener(
+          new VideoRenderer.Listener() {
+            @Override
+            public void onFirstFrame() {
 
-          }
+            }
 
-          @Override
-          public void onFrameDimensionsChanged(int vw, int vh, int rotation) {
-            synchronized (layoutSync) {
-              videoHeight = vh;
-              videoWidth = vw;
-              RNVideoViewGroup.this.forceLayout();
+            @Override
+            public void onFrameDimensionsChanged(int vw, int vh, int rotation) {
+              synchronized (layoutSync) {
+                videoHeight = vh;
+                videoWidth = vw;
+                RNVideoViewGroup.this.forceLayout();
+              }
             }
           }
-        }
-    );
+      );
+    } catch(NoSuchFieldException e){
+
+    }
   }
 
-  public VideoView getSurfaceViewRenderer() {
+  public VideoTextureView getSurfaceViewRenderer() {
     return surfaceViewRenderer;
   }
 
