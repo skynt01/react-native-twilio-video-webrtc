@@ -8,6 +8,9 @@
  */
 package com.twiliorn.library;
 
+import android.net.Uri;
+import android.graphics.Bitmap;
+import android.os.Environment;
 import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -46,9 +49,12 @@ import com.twilio.video.VideoView;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Date;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.io.File;
+import java.io.FileOutputStream;
 
 import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_AUDIO_CHANGED;
 import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_CAMERA_SWITCHED;
@@ -60,6 +66,7 @@ import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_PARTICIPANT_D
 import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_VIDEO_CHANGED;
 import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_PARTICIPANT_ADDED_VIDEO_TRACK;
 import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_PARTICIPANT_REMOVED_VIDEO_TRACK;
+import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_SCREENSHOT_TAKEN;
 
 public class CustomTwilioVideoView extends View implements LifecycleEventListener {
     private static final String TAG = "CustomTwilioVideoView";
@@ -74,7 +81,8 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
             Events.ON_PARTICIPANT_CONNECTED,
             Events.ON_PARTICIPANT_DISCONNECTED,
             Events.ON_PARTICIPANT_ADDED_VIDEO_TRACK,
-            Events.ON_PARTICIPANT_REMOVED_VIDEO_TRACK})
+            Events.ON_PARTICIPANT_REMOVED_VIDEO_TRACK,
+            Events.ON_SCREENSHOT_TAKEN})
     public @interface Events {
         String ON_CAMERA_SWITCHED          = "onCameraSwitched";
         String ON_VIDEO_CHANGED            = "onVideoChanged";
@@ -86,6 +94,7 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
         String ON_PARTICIPANT_DISCONNECTED = "onRoomParticipantDidDisconnect";
         String ON_PARTICIPANT_ADDED_VIDEO_TRACK = "onParticipantAddedVideoTrack";
         String ON_PARTICIPANT_REMOVED_VIDEO_TRACK = "onParticipantRemovedVideoTrack";
+        String ON_SCREENSHOT_TAKEN = "onScreenshotTaken";
     }
 
     private final ThemedReactContext themedReactContext;
@@ -103,8 +112,8 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
      * A VideoView receives frames from a local or remote video track and renders them
      * to an associated view.
      */
-    private static VideoView primaryVideoView;
-    private static VideoView thumbnailVideoView;
+    private static VideoTextureView primaryVideoView;
+    private static VideoTextureView thumbnailVideoView;
     private static VideoTrack  participantVideoTrack;
     private static LocalVideoTrack localVideoTrack;
 
@@ -434,6 +443,29 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
         }
     }
 
+    public void takeScreenshot(){
+        if (primaryVideoView != null) {
+            Bitmap bitmap = primaryVideoView.getBitmap();
+            Date now = new Date();
+            android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", now);
+
+            try {
+                String mPath = Environment.getExternalStorageDirectory().toString() + "/" + now + ".jpg";
+                File imageFile = new File(mPath);
+                FileOutputStream outputStream = new FileOutputStream(imageFile);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                outputStream.flush();
+                outputStream.close();
+                
+                WritableMap event = new WritableNativeMap();
+                event.putString("path", Uri.fromFile(imageFile).toString());
+                pushEvent(CustomTwilioVideoView.this, ON_SCREENSHOT_TAKEN, event);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            } 
+        }
+    }
+
     // ====== ROOM LISTENER ========================================================================
 
     /*
@@ -641,14 +673,14 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
         eventEmitter.receiveEvent(view.getId(), name, data);
     }
 
-    public static void registerPrimaryVideoView(VideoView v) {
+    public static void registerPrimaryVideoView(VideoTextureView v) {
         primaryVideoView = v;
         if (participantVideoTrack != null) {
             participantVideoTrack.addRenderer(v);
         }
     }
 
-    public static void registerThumbnailVideoView(VideoView v) {
+    public static void registerThumbnailVideoView(VideoTextureView v) {
         thumbnailVideoView = v;
         if (localVideoTrack != null) {
             localVideoTrack.addRenderer(v);

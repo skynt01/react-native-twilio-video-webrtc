@@ -34,6 +34,9 @@ const propTypes = {
    */
   onAudioChanged: PropTypes.func,
 
+
+  onScreenshotTaken: PropTypes.func,
+
   /**
    * Callback that is called when user is connected to a room.
    */
@@ -82,7 +85,8 @@ const nativeEvents = {
   toggleSound: 5,
   toggleSpeakerOutput: 6,
   releaseCamera: 7,
-  reconnectCamera: 8
+  reconnectCamera: 8,
+  takeScreenshot: 9
 }
 
 class CustomTwilioVideoView extends Component {
@@ -118,6 +122,10 @@ class CustomTwilioVideoView extends Component {
     this.runCommand(nativeEvents.reconnectCamera, [])
   }
 
+  takeScreenshot() {
+    this.runCommand(nativeEvents.takeScreenshot, [])
+  }
+
   runCommand (event, args) {
     switch (Platform.OS) {
       case 'android':
@@ -143,7 +151,8 @@ class CustomTwilioVideoView extends Component {
       'onParticipantAddedVideoTrack',
       'onParticipantRemovedVideoTrack',
       'onRoomParticipantDidConnect',
-      'onRoomParticipantDidDisconnect'
+      'onRoomParticipantDidDisconnect',
+      'onScreenshotTaken'
     ].reduce((wrappedEvents, eventName) => {
       if (this.props[eventName]) {
         return {

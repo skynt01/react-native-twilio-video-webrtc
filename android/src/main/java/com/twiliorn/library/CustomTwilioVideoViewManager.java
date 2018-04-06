@@ -28,6 +28,7 @@ import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_PARTICIPANT_D
 import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_VIDEO_CHANGED;
 import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_PARTICIPANT_ADDED_VIDEO_TRACK;
 import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_PARTICIPANT_REMOVED_VIDEO_TRACK;
+import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_SCREENSHOT_TAKEN;
 
 public class CustomTwilioVideoViewManager extends SimpleViewManager<CustomTwilioVideoView> {
     public static final String REACT_CLASS = "RNCustomTwilioVideoView";
@@ -40,6 +41,7 @@ public class CustomTwilioVideoViewManager extends SimpleViewManager<CustomTwilio
     private static final int TOGGLE_SPEAKER_OUTPUT = 6;
     private static final int RELEASE_CAMERA = 7;
     private static final int RECONNECT_CAMERA = 8;
+    private static final int TAKE_SCREENSHOT = 9;
 
     @Override
     public String getName() {
@@ -83,6 +85,9 @@ public class CustomTwilioVideoViewManager extends SimpleViewManager<CustomTwilio
             case RECONNECT_CAMERA:
                 view.reconnectCamera();
                 break;
+            case TAKE_SCREENSHOT:
+                view.takeScreenshot();
+                break;
         }
     }
 
@@ -102,7 +107,8 @@ public class CustomTwilioVideoViewManager extends SimpleViewManager<CustomTwilio
         map.putAll(MapBuilder.of(
                 ON_PARTICIPANT_DISCONNECTED, MapBuilder.of("registrationName", ON_PARTICIPANT_DISCONNECTED),
                 ON_PARTICIPANT_ADDED_VIDEO_TRACK, MapBuilder.of("registrationName", ON_PARTICIPANT_ADDED_VIDEO_TRACK),
-                ON_PARTICIPANT_REMOVED_VIDEO_TRACK, MapBuilder.of("registrationName", ON_PARTICIPANT_REMOVED_VIDEO_TRACK)
+                ON_PARTICIPANT_REMOVED_VIDEO_TRACK, MapBuilder.of("registrationName", ON_PARTICIPANT_REMOVED_VIDEO_TRACK),
+                ON_SCREENSHOT_TAKEN, MapBuilder.of("registrationName", ON_SCREENSHOT_TAKEN)
         ));
 
         return map;
