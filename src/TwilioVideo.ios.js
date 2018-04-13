@@ -119,6 +119,8 @@ export default class extends Component {
     this.flipCamera = this.flipCamera.bind(this)
     this.connect = this.connect.bind(this)
     this.disconnect = this.disconnect.bind(this)
+    this.releaseCamera = this.releaseCamera.bind(this);
+    this.reconnectCamera = this.reconnectCamera.bind(this);
   }
 
   componentWillMount () {
@@ -175,6 +177,12 @@ export default class extends Component {
    */
   disconnect () {
     TWVideoModule.disconnect()
+  }
+
+  reconnectCamera () {
+  }
+
+  releaseCamera () {
   }
 
   _startLocalVideo () {
