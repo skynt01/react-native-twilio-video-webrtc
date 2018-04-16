@@ -24,8 +24,9 @@ static NSString* participantEnabledTrack      = @"participantEnabledTrack";
 static NSString* participantDisabledTrack     = @"participantDisabledTrack";
 
 static NSString* cameraDidStart               = @"cameraDidStart";
-static NSString* cameraWasInterrupted        = @"cameraWasInterrupted";
+static NSString* cameraWasInterrupted         = @"cameraWasInterrupted";
 static NSString* cameraDidStopRunning         = @"cameraDidStopRunning";
+static NSString* onScreenshotTaken            = @"onScreenshotTaken";
 
 
 @interface RCTTWVideoModule () <TVIParticipantDelegate, TVIRoomDelegate, TVICameraCapturerDelegate>
@@ -63,7 +64,8 @@ RCT_EXPORT_MODULE();
     participantDisabledTrack,
     cameraDidStopRunning,
     cameraDidStart,
-    cameraWasInterrupted
+    cameraWasInterrupted,
+    onScreenshotTaken
   ];
 }
 
@@ -187,6 +189,10 @@ RCT_EXPORT_METHOD(connect:(NSString *)accessToken roomName:(NSString *)roomName)
 
 RCT_EXPORT_METHOD(disconnect) {
   [self.room disconnect];
+}
+
+RCT_EXPORT_METHOD(takeScreenshot) {
+  [self sendEventWithName:onScreenshotTaken body:@{ @"roomName": @"Room", @"participant": @"Vincent" }];
 }
 
 -(TVIVideoConstraints*) videoConstraints {
