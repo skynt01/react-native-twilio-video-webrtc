@@ -197,8 +197,9 @@ RCT_EXPORT_METHOD(takeScreenshot) {
     for (TVIParticipant *participant in self.room.participants) {
         for (TVIVideoTrack *videoTrack in participant.videoTracks) {
             for (TVIVideoView *r in videoTrack.renderers) {
-                UIGraphicsBeginImageContextWithOptions(r.bounds.size, NO, 0.0);
-                [r.layer renderInContext:UIGraphicsGetCurrentContext()];
+                UIGraphicsBeginImageContextWithOptions(r.bounds.size, NO, [UIScreen mainScreen].scale);
+                CGRect rec = CGRectMake(0, 0, r.bounds.size.width, r.bounds.size.height);
+                [r drawViewHierarchyInRect:rec afterScreenUpdates:YES];
                 UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
                 UIGraphicsEndImageContext();
 
