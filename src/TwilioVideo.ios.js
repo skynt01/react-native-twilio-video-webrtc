@@ -119,8 +119,7 @@ export default class extends Component {
     this.flipCamera = this.flipCamera.bind(this)
     this.connect = this.connect.bind(this)
     this.disconnect = this.disconnect.bind(this)
-    this.releaseCamera = this.releaseCamera.bind(this);
-    this.reconnectCamera = this.reconnectCamera.bind(this);
+    this.takeScreenshot = this.takeScreenshot.bind(this)
   }
 
   componentWillMount () {
@@ -150,10 +149,10 @@ export default class extends Component {
   }
 
   /**
-  * Toggle audio output speaker or ear
-  */
+   * Toggle audio output speaker or ear
+   */
   setSpeakerOutputEnabled(enabled) {
-      return TWVideoModule.setSpeakerOutputEnabled(enabled)
+    return TWVideoModule.setSpeakerOutputEnabled(enabled)
   }
 
   /**
@@ -179,10 +178,8 @@ export default class extends Component {
     TWVideoModule.disconnect()
   }
 
-  reconnectCamera () {
-  }
-
-  releaseCamera () {
+  takeScreenshot () {
+    TWVideoModule.takeScreenshot()
   }
 
   _startLocalVideo () {
@@ -250,6 +247,9 @@ export default class extends Component {
       }),
       this._eventEmitter.addListener('cameraDidStopRunning', (data) => {
         if (this.props.onCameraDidStopRunning) { this.props.onCameraDidStopRunning(data) }
+      }),
+      this._eventEmitter.addListener('onScreenshotTaken', (data) => {
+        if (this.props.onScreenshotTaken) { this.props.onScreenshotTaken(data) }
       })
     ]
   }

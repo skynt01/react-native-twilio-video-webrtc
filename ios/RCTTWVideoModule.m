@@ -10,6 +10,8 @@
 
 #import "RCTTWSerializable.h"
 
+#import <QuartzCore/QuartzCore.h>
+
 static NSString* roomDidConnect               = @"roomDidConnect";
 static NSString* roomDidDisconnect            = @"roomDidDisconnect";
 static NSString* roomDidFailToConnect         = @"roomDidFailToConnect";
@@ -24,8 +26,9 @@ static NSString* participantEnabledTrack      = @"participantEnabledTrack";
 static NSString* participantDisabledTrack     = @"participantDisabledTrack";
 
 static NSString* cameraDidStart               = @"cameraDidStart";
-static NSString* cameraWasInterrupted        = @"cameraWasInterrupted";
+static NSString* cameraWasInterrupted         = @"cameraWasInterrupted";
 static NSString* cameraDidStopRunning         = @"cameraDidStopRunning";
+static NSString* onScreenshotTaken            = @"onScreenshotTaken";
 
 
 @interface RCTTWVideoModule () <TVIParticipantDelegate, TVIRoomDelegate, TVICameraCapturerDelegate>
@@ -63,7 +66,8 @@ RCT_EXPORT_MODULE();
     participantDisabledTrack,
     cameraDidStopRunning,
     cameraDidStart,
-    cameraWasInterrupted
+    cameraWasInterrupted,
+    onScreenshotTaken
   ];
 }
 
@@ -187,6 +191,24 @@ RCT_EXPORT_METHOD(connect:(NSString *)accessToken roomName:(NSString *)roomName)
 
 RCT_EXPORT_METHOD(disconnect) {
   [self.room disconnect];
+}
+
+RCT_EXPORT_METHOD(takeScreenshot) {
+    for (TVIParticipant *participant in self.room.participants) {
+        for (TVIVideoTrack *videoTrack in participant.videoTracks) {
+            for (TVIVideoView *r in videoTrack.renderers) {
+                UIGraphicsBeginImageContextWithOptions(r.bounds.size, NO, 0.0);
+                [r.layer renderInContext:UIGraphicsGetCurrentContext()];
+                UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+
+                NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
+                NSString *base64DataString = [imageData base64EncodedStringWithOptions:0];
+
+                [self sendEventWithName:onScreenshotTaken body:@{ @"base64Data": base64DataString }];
+            }
+        }
+    }
 }
 
 -(TVIVideoConstraints*) videoConstraints {
