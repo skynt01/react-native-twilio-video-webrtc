@@ -23,6 +23,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
 import android.util.Log;
+import android.util.Base64;
 import android.view.View;
 
 import com.facebook.react.bridge.LifecycleEventListener;
@@ -55,6 +56,7 @@ import java.util.Collections;
 import java.util.List;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 
 import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_AUDIO_CHANGED;
 import static com.twiliorn.library.CustomTwilioVideoView.Events.ON_CAMERA_SWITCHED;
@@ -323,7 +325,7 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
             audioManager.setSpeakerphoneOn(!audioManager.isWiredHeadsetOn());
             try {
                 getContext().registerReceiver(myNoisyAudioStreamReceiver, intentFilter);
-            } 
+            }
             catch(Exception e) {
                 Log.i("CustomTwilioVideoView", "registerReceiver failed");
             }
@@ -333,7 +335,7 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
             audioManager.setSpeakerphoneOn(false);
             try {
                 getContext().unregisterReceiver(myNoisyAudioStreamReceiver);
-            } 
+            }
             catch(Exception e) {
                 Log.i("CustomTwilioVideoView", "unregisterReceiver failed");
             }
@@ -445,24 +447,19 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
 
     public void takeScreenshot(){
         if (primaryVideoView != null) {
-            Bitmap bitmap = primaryVideoView.getBitmap();
-            Date now = new Date();
-            android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", now);
-
             try {
-                String mPath = Environment.getExternalStorageDirectory().toString() + "/" + now + ".jpg";
-                File imageFile = new File(mPath);
-                FileOutputStream outputStream = new FileOutputStream(imageFile);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-                outputStream.flush();
-                outputStream.close();
-                
+                Bitmap bitmap = primaryVideoView.getBitmap();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] byteArrayImage = baos.toByteArray();
+                String encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
+
                 WritableMap event = new WritableNativeMap();
-                event.putString("path", Uri.fromFile(imageFile).toString());
+                event.putString("base64Data", encodedImage);
                 pushEvent(CustomTwilioVideoView.this, ON_SCREENSHOT_TAKEN, event);
             } catch (Throwable e) {
                 e.printStackTrace();
-            } 
+            }
         }
     }
 
